@@ -1,0 +1,599 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Texas Weather Service</title>
+<link rel="icon" type="image/jpg" href="tws-logo.jpg">
+
+<style>
+:root {
+    --navy: #174675;
+    --blue: #28699e;
+    --light-blue: #eaf3fa;
+    --background: #f2f5f8;
+    --text: #202b36;
+    --muted: #64748b;
+    --white: #ffffff;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    background: var(--background);
+    color: var(--text);
+}
+
+header {
+    background: white;
+    border-bottom: 1px solid #d5dee7;
+    padding: 14px 5%;
+}
+
+.header-inner {
+    max-width: 1150px;
+    margin: auto;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.logo {
+    width: 65px;
+    height: 65px;
+    object-fit: contain;
+}
+
+.brand h1 {
+    font-size: 21px;
+    color: var(--navy);
+    margin: 0;
+}
+
+.brand p {
+    color: var(--muted);
+    margin: 5px 0 0;
+    font-size: 12px;
+    letter-spacing: 1px;
+}
+
+nav {
+    background: var(--navy);
+    padding: 0 5%;
+}
+
+.nav-inner {
+    max-width: 1150px;
+    margin: auto;
+    display: flex;
+    gap: 5px;
+}
+
+nav button {
+    background: transparent;
+    color: white;
+    border: none;
+    padding: 15px 19px;
+    font-size: 15px;
+    cursor: pointer;
+}
+
+nav button:hover,
+nav button.active {
+    background: var(--blue);
+}
+
+main {
+    max-width: 1150px;
+    margin: 28px auto;
+    padding: 0 18px;
+}
+
+.page {
+    display: none;
+}
+
+.page.active {
+    display: block;
+}
+
+h2 {
+    color: var(--navy);
+    margin-top: 0;
+}
+
+.subtitle {
+    color: var(--muted);
+    margin-top: -8px;
+}
+
+.card {
+    background: white;
+    border: 1px solid #dce4ec;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 18px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.04);
+}
+
+.card h3 {
+    color: var(--navy);
+    margin-top: 0;
+}
+
+.weather-main {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.temperature {
+    font-size: 55px;
+    font-weight: bold;
+    color: var(--navy);
+}
+
+.weather-icon {
+    font-size: 48px;
+}
+
+.weather-description {
+    font-size: 18px;
+    color: #43576a;
+}
+
+.details {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 12px;
+    margin-top: 20px;
+}
+
+.detail {
+    background: var(--light-blue);
+    padding: 15px;
+    border-radius: 6px;
+}
+
+.detail span {
+    display: block;
+    color: var(--muted);
+    font-size: 13px;
+}
+
+.detail strong {
+    display: block;
+    color: var(--navy);
+    font-size: 20px;
+    margin-top: 6px;
+}
+
+button.primary {
+    background: var(--blue);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 12px 18px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+button.primary:hover {
+    background: var(--navy);
+}
+
+input {
+    padding: 12px;
+    border: 1px solid #b8c8d8;
+    border-radius: 5px;
+    font-size: 15px;
+    width: min(100%, 260px);
+}
+
+.forecast-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 12px;
+}
+
+.forecast-day {
+    background: white;
+    border: 1px solid #dce4ec;
+    border-radius: 8px;
+    padding: 18px;
+    text-align: center;
+}
+
+.forecast-day h3 {
+    font-size: 15px;
+}
+
+.forecast-day .icon {
+    font-size: 34px;
+    margin: 10px 0;
+}
+
+.high {
+    color: var(--navy);
+    font-weight: bold;
+}
+
+.low {
+    color: var(--muted);
+    margin-left: 8px;
+}
+
+.status {
+    color: var(--muted);
+    font-size: 14px;
+    margin-top: 12px;
+}
+
+footer {
+    background: var(--navy);
+    color: white;
+    text-align: center;
+    padding: 22px;
+    margin-top: 45px;
+    font-size: 13px;
+}
+
+footer p {
+    margin: 5px;
+}
+
+@media(max-width: 500px) {
+    .brand h1 {
+        font-size: 17px;
+    }
+
+    .logo {
+        width: 52px;
+        height: 52px;
+    }
+
+    nav button {
+        padding: 14px 12px;
+        font-size: 13px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <div class="header-inner">
+        <img src="tws-logo.jpg" class="logo"
+             alt="TWS logo"
+             onerror="this.style.display='none'">
+
+        <div class="brand">
+            <h1>TEXAS WEATHER SERVICE</h1>
+            <p>WEATHER INFORMATION AND FORECASTS</p>
+        </div>
+    </div>
+</header>
+
+<nav>
+    <div class="nav-inner">
+        <button class="active" onclick="showPage('home', this)">
+            Home
+        </button>
+
+        <button onclick="showPage('forecast', this)">
+            Forecast
+        </button>
+    </div>
+</nav>
+
+<main>
+
+    <!-- HOMEPAGE -->
+    <section id="home" class="page active">
+
+        <h2>Local Weather</h2>
+        <p class="subtitle">
+            Current weather conditions for your location.
+        </p>
+
+        <div class="card">
+            <h3 id="locationName">Your Location</h3>
+
+            <div class="weather-main">
+                <div class="weather-icon" id="currentIcon">🌤️</div>
+
+                <div>
+                    <div class="temperature" id="temperature">
+                        --°F
+                    </div>
+
+                    <div class="weather-description" id="description">
+                        Waiting for weather data...
+                    </div>
+                </div>
+            </div>
+
+            <div class="details">
+
+                <div class="detail">
+                    <span>Feels Like</span>
+                    <strong id="feels">--°F</strong>
+                </div>
+
+                <div class="detail">
+                    <span>Humidity</span>
+                    <strong id="humidity">--%</strong>
+                </div>
+
+                <div class="detail">
+                    <span>Wind Speed</span>
+                    <strong id="wind">-- mph</strong>
+                </div>
+
+                <div class="detail">
+                    <span>Wind Direction</span>
+                    <strong id="direction">--</strong>
+                </div>
+
+            </div>
+
+            <p class="status" id="status">
+                Location has not been requested.
+            </p>
+
+            <button class="primary" onclick="getLocation()">
+                Use My Location
+            </button>
+        </div>
+
+        <div class="card">
+            <h3>Texas Weather Service</h3>
+            <p>
+                Welcome to TWS! Check current weather conditions
+                and forecasts using this independent weather project.
+            </p>
+            <button class="primary"
+                onclick="showPage('forecast', document.querySelectorAll('nav button')[1])">
+                View Forecast
+            </button>
+        </div>
+
+    </section>
+
+
+    <!-- FORECAST PAGE -->
+    <section id="forecast" class="page">
+
+        <h2>Five-Day Forecast</h2>
+        <p class="subtitle">
+            Weather outlook for your selected location.
+        </p>
+
+        <div class="card">
+            <h3 id="forecastLocation">Your Location</h3>
+
+            <div class="forecast-grid" id="forecastGrid">
+                <p>Waiting for weather data...</p>
+            </div>
+
+            <p class="status" id="forecastStatus">
+                Use your location from the homepage to load the forecast.
+            </p>
+        </div>
+
+        <button class="primary" onclick="getLocation()">
+            Refresh Weather
+        </button>
+
+    </section>
+
+</main>
+
+<footer>
+    <p><strong>TEXAS WEATHER SERVICE</strong></p>
+    <p>Independent weather project.</p>
+    <p>Not affiliated with the National Weather Service or NOAA.</p>
+    <p>Weather data provided by Open-Meteo.</p>
+</footer>
+
+
+<script>
+let latitude = null;
+let longitude = null;
+let savedLocation = "Your Location";
+
+function showPage(page, button) {
+    document.querySelectorAll(".page").forEach(p => {
+        p.classList.remove("active");
+    });
+
+    document.getElementById(page).classList.add("active");
+
+    document.querySelectorAll("nav button").forEach(b => {
+        b.classList.remove("active");
+    });
+
+    if (button) button.classList.add("active");
+}
+
+function weatherInfo(code) {
+    if (code === 0) return ["☀️", "Clear sky"];
+    if (code <= 2) return ["🌤️", "Partly cloudy"];
+    if (code === 3) return ["☁️", "Overcast"];
+    if (code <= 48) return ["🌫️", "Fog"];
+    if (code <= 57) return ["🌦️", "Drizzle"];
+    if (code <= 67) return ["🌧️", "Rain"];
+    if (code <= 77) return ["❄️", "Snow"];
+    if (code <= 82) return ["🌧️", "Rain showers"];
+    if (code <= 86) return ["🌨️", "Snow showers"];
+    if (code <= 99) return ["⛈️", "Thunderstorms"];
+    return ["🌡️", "Unknown conditions"];
+}
+
+function compass(degrees) {
+    const directions = [
+        "N", "NE", "E", "SE",
+        "S", "SW", "W", "NW"
+    ];
+
+    return directions[
+        Math.round(degrees / 45) % 8
+    ];
+}
+
+async function getLocation() {
+    const status = document.getElementById("status");
+
+    if (!navigator.geolocation) {
+        status.textContent = "Your browser does not support location.";
+        return;
+    }
+
+    status.textContent = "Requesting your location...";
+
+    navigator.geolocation.getCurrentPosition(
+        async position => {
+            latitude = position.coords.latitude;
+            longitude = position.coords.longitude;
+
+            status.textContent = "Loading weather data...";
+
+            await loadWeather();
+        },
+
+        error => {
+            status.textContent =
+                "Location unavailable. Please allow location access and try again.";
+        },
+
+        {
+            enableHighAccuracy: false,
+            timeout: 15000,
+            maximumAge: 300000
+        }
+    );
+}
+
+async function loadWeather() {
+    if (latitude === null || longitude === null) return;
+
+    const url =
+        `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}` +
+        "&current=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,weather_code,wind_speed_10m,wind_direction_10m" +
+        "&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max" +
+        "&temperature_unit=fahrenheit&wind_speed_unit=mph&timezone=auto&forecast_days=5";
+
+    try {
+        const response = await fetch(url);
+
+        if (!response.ok) {
+            throw new Error("Weather service unavailable");
+        }
+
+        const data = await response.json();
+
+        const current = data.current;
+        const info = weatherInfo(current.weather_code);
+
+        document.getElementById("temperature").textContent =
+            Math.round(current.temperature_2m) + "°F";
+
+        document.getElementById("currentIcon").textContent =
+            info[0];
+
+        document.getElementById("description").textContent =
+            info[1];
+
+        document.getElementById("feels").textContent =
+            Math.round(current.apparent_temperature) + "°F";
+
+        document.getElementById("humidity").textContent =
+            current.relative_humidity_2m + "%";
+
+        document.getElementById("wind").textContent =
+            Math.round(current.wind_speed_10m) + " mph";
+
+        document.getElementById("direction").textContent =
+            compass(current.wind_direction_10m);
+
+        savedLocation =
+            `Your Location (${latitude.toFixed(2)}, ${longitude.toFixed(2)})`;
+
+        document.getElementById("locationName").textContent =
+            savedLocation;
+
+        document.getElementById("forecastLocation").textContent =
+            "Five-Day Forecast";
+
+        document.getElementById("status").textContent =
+            "Weather data updated successfully.";
+
+        document.getElementById("forecastStatus").textContent =
+            "Forecast updated successfully.";
+
+        buildForecast(data.daily);
+
+    } catch (error) {
+        document.getElementById("status").textContent =
+            "Could not load weather. Check your internet connection.";
+
+        document.getElementById("forecastStatus").textContent =
+            "Forecast data is unavailable.";
+    }
+}
+
+function buildForecast(daily) {
+    const grid = document.getElementById("forecastGrid");
+    grid.innerHTML = "";
+
+    for (let i = 0; i < daily.time.length; i++) {
+        const info = weatherInfo(daily.weather_code[i]);
+
+        const date = new Date(
+            daily.time[i] + "T12:00:00"
+        );
+
+        const dayName = date.toLocaleDateString(
+            "en-US",
+            { weekday: "short", month: "short", day: "numeric" }
+        );
+
+        const card = document.createElement("div");
+        card.className = "forecast-day";
+
+        const heading = document.createElement("h3");
+        heading.textContent = dayName;
+
+        const icon = document.createElement("div");
+        icon.className = "icon";
+        icon.textContent = info[0];
+
+        const description = document.createElement("p");
+        description.textContent = info[1];
+
+        const temperatures = document.createElement("p");
+        temperatures.innerHTML =
+            `<span class="high">${Math.round(daily.temperature_2m_max[i])}°</span>` +
+            `<span class="low">${Math.round(daily.temperature_2m_min[i])}°</span>`;
+
+        const rain = document.createElement("p");
+        rain.textContent =
+            `Rain chance: ${daily.precipitation_probability_max[i] ?? "--"}%`;
+
+        card.append(heading, icon, description, temperatures, rain);
+        grid.appendChild(card);
+    }
+}
+
+// Load nothing until the user grants location permission.
+</script>
+
+</body>
+</html>
